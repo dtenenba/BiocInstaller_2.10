@@ -1,5 +1,9 @@
-## The following two values are updated with each bioC release
-BIOC_VERSION <- "2.10"            # this version of Bioconductor
+## The following values are updated with each bioC release
+BIOC_LAGGING <- "2.10"           #  first-for-this-R version of Bioconductor
+BIOC_LEADING <- "2.11"           # 'devel' or latest-for-this-R version
+BIOC_LATEST <- BIOC_LEADING      # latest 'user' version
+BIOC_DEVEL <- "2.12"             # latest 'devel' version
+BIOCINSTALLER_LATEST <- "1.6"    # BiocInstaller for BIOC_LATEST
 NEXT_R_DEVEL_VERSION <- "2.16.0" # next (not-yet-supported) version of R
 
 
@@ -14,4 +18,6 @@ mbniUrl <- "http://brainarray.mbni.med.umich.edu/bioc"
 {
     .message("BiocInstaller version %s, ?biocLite for help",
              packageVersion("BiocInstaller"))
+    if (!.isLatest())
+        .message("A newer version of Bioconductor is available for this version of R, ?BiocUpgrade for help")
 }

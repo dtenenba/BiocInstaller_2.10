@@ -1,11 +1,49 @@
+.isLatest <-
+    function()
+{
+    pkgVers <- as.character(packageVersion("BiocInstaller"))
+    compareVersion(pkgVers, BIOCINSTALLER_LATEST) < 0
+}
+
+.biocUpgrade <-
+    function()
+{
+    if (.isLatest())
+        .stop("'%s' is the latest version of Bioconductor for this version of R ",
+              BIOC_LATEST)
+
+    txt <- sprintf("Upgrade all packages to Bioconductor version '%s'? [y/n]: ",
+                   BIOC_LATEST)
+    answer <- .getAnswer(txt, allowed = c("y", "Y", "n", "N"))
+    if ("y" == answer) {
+        .update(TRUE)
+        biocLite(character(), ask=FALSE)
+    }
+}
+
+.isDevel <-
+    function ()
+{
+    pkgVers <- packageVersion("BiocInstaller")
+    ((compareVersion(as.character(pkgVers), BIOCINSTALLER_LATEST) > 0) &&
+     ((pkgVers$minor %% 2L) == 1L))
+}
+
 useDevel <-
     function(devel=TRUE)
 {
-    if (devel && .isDevel())
-        .stop("'devel' version already in use")
-    if (!devel && !.isDevel())
-        .stop("'release' version already in use")
-    
+    if (devel && (BIOC_LEADING == BIOC_LATEST))
+        .stop("'devel' requires a more recent R")
+
+    if (devel == .isDevel())
+        .stop("version '%s' already in use",
+              if (devel) BIOC_LEADING else BIOC_LAGGING)
+    .update(devel)
+}
+
+.update <-
+    function(useLeading)
+{
     .dbg("before, version is '%s'", packageVersion("BiocInstaller"))
     bootstrap <-
         function()
@@ -20,14 +58,14 @@ useDevel <-
             NULL
         }))
         library(BiocInstaller)
-        BiocInstaller:::.useDevelFinish()
+        BiocInstaller:::.updateFinish()
     }
     biocBootstrapEnv <- new.env()
-    biocBootstrapEnv[["contribUrl"]] <- .getContribUrl(devel)
+    biocBootstrapEnv[["contribUrl"]] <- .getContribUrl(useLeading)
     .stepAside(biocBootstrapEnv, bootstrap)
 }
 
-.useDevelFinish <-
+.updateFinish <-
     function()
 {
     failed <- exists("failed", "biocBootstrapEnv")
@@ -37,6 +75,6 @@ useDevel <-
     if (!failed)
         .message("'BiocInstaller' changed to version %s", vers)
     else
-        .warning("''useDevel' failed, using BiocInstaller version '%s'",
+        .warning("update failed, using BiocInstaller version '%s'",
                  vers, call.=FALSE)
 }

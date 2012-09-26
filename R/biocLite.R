@@ -48,28 +48,19 @@ biocinstallRepos <-
                          "BioCexp", "BioCextra")]
 
     ## This needs to be commented out a few months (3? 4?) after the
-    ## development cycle for BioC 2.10 has started, when we are confident
-    ## that no developper is still using an early R 2.15 with a
-    ## tools:::.BioC_version_associated_with_R_version still pointing to
-    ## BioC 2.9.
+    ## next development cycle has started, when we are confident that
+    ## no developper is still using an early R devel with a
+    ## tools:::.BioC_version_associated_with_R_version still pointing
+    ## to the release repository.
 
-    ## This version of BiocInstaller is meant for use with R-2.15.
-    ## Both BioC 2.10 and 2.11 can be used with R-2.15. 
-
-    ## The following code will become active only after BioC 2.10
-    ## is released (on 02 Apr 2012). At that point, BioC 2.10 will
-    ## be "release" and BioC 2.11 will be "devel".
-
-    biocVers <- if (devel) "2.11" else "2.10"
+    biocVers <- if (devel) BIOC_DEVEL else BIOC_LATEST
 
     if (!.Platform$OS.type %in% c("windows"))
     {
         repos <- repos[!names(repos) %in% "CRANextra"]
     }
     
-    
-    
-    if (biocVers == "2.11") {
+    if (biocVers == BIOC_DEVEL) {
         ## Add (uncomment) repos here as they become available.
         active_hutch_repos <- "BioCextra"
         active_hutch_repos <- c(active_hutch_repos, "BioCsoft")
@@ -124,7 +115,7 @@ biocLiteInstall <-
         .stop("failed to load package 'utils'")
     if (compareVersion(thisRVer, NEXT_R_DEVEL_VERSION) >= 0)
         .message("Temporarily using Bioconductor version %s",
-                 BIOC_VERSION)
+                 BIOC_DEVEL)
 
     repos <- biocinstallRepos(siteRepos)
 

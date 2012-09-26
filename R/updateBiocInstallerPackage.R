@@ -64,7 +64,7 @@ updateBioconductorPackage <-
         BiocInstaller:::.updateBioconductorPackageFinish()
     }
     biocBootstrapEnv <- new.env()
-    biocBootstrapEnv[["pkgs"]] <- pkgs
+    biocBootstrapEnv[["pkgs"]] <- pkgs[pkgs != "BiocInstaller"]
     biocBootstrapEnv[["ask"]] <- ask
     biocBootstrapEnv[["suppressUpdates"]] <- suppressUpdates
     biocBootstrapEnv[["contribUrl"]] <- .getContribUrl()
@@ -89,5 +89,9 @@ updateBioconductorPackage <-
     else
         .warning("'BiocInstaller' update failed, using version '%s'",
                  vers, call.=FALSE)
-    do.call(biocLiteInstall, args)
+    if (length(args$pkgs) == 1L && args$pkgs == "BiocUpgrade") {
+        .biocUpgrade()
+    } else {
+        do.call(biocLiteInstall, args)
+    }
 }

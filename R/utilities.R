@@ -55,15 +55,6 @@
     paste(major, minor, sep=".")
 }
 
-.isDevel <-
-    function ()
-{
-    minor <- as.numeric(R.Version()$minor)
-    if (R.Version()$major == "2" && (minor >= 16 && minor < 17))
-        return(TRUE)
-    (packageVersion("BiocInstaller")$minor %% 2L) == 1L
-}
-
 # bootstrap() should take care of unloading BiocInstaller 
 # and reloading it.
 
