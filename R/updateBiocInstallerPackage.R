@@ -89,7 +89,7 @@ updateBioconductorPackage <-
     else
         .warning("'BiocInstaller' update failed, using version '%s'",
                  vers, call.=FALSE)
-    if (length(args$pkgs) == 1L && args$pkgs == "BiocUpgrade") {
+    if ("BiocUpgrade" %in% args$pkgs) {
         .biocUpgrade()
     } else {
         do.call(biocLiteInstall, args)

@@ -82,7 +82,8 @@ biocinstallRepos <-
 
     if ("@CRAN@" %in% repos)
         repos["CRAN"] <- "http://cran.fhcrc.org"
-    if (includeMBNI)
+    if (includeMBNI &&
+        (getOption("pkgType") %in% c("source", "win.binary")))
         repos[["MBNI"]] <- mbniUrl
     
     c(siteRepos=siteRepos, repos)
@@ -235,6 +236,8 @@ biocLite <-
         on.exit(updateBioconductorPackage(pkgs, ask=ask,
                                           suppressUpdates=suppressUpdates,
                                           siteRepos=siteRepos, ...))
+    } else if ("BiocUpgrade" %in% pkgs) {
+        .biocUpgrade()
     } else {
         biocLiteInstall(pkgs, ask=ask, siteRepos=siteRepos,
                         suppressUpdates=suppressUpdates, ...)
