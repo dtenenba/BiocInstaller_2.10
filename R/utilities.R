@@ -31,13 +31,13 @@
 }
 
 .stop <-
-    function(..., call.=TRUE)
+    function(..., call.=FALSE)
 {
     stop(.msg(...), call.=call.)
 }
 
 .warning <-
-    function(..., call.=TRUE, immediate.=FALSE)
+    function(..., call.=FALSE, immediate.=FALSE)
 {
     warning(.msg(...), call.=call., immediate.=immediate.)
 }

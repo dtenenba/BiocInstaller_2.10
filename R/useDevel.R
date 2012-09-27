@@ -1,50 +1,46 @@
-.isLatest <-
-    function()
-{
-    pkgVers <- as.character(packageVersion("BiocInstaller"))
-    compareVersion(pkgVers, BIOCINSTALLER_LATEST) < 0
-}
-
 .biocUpgrade <-
     function()
 {
-    if (.isLatest())
-        .stop("'%s' is the latest version of Bioconductor for this version of R ",
-              BIOC_LATEST)
+    if (!IS_UPGRADEABLE)
+        .stop("%s is the latest version of Bioconductor for this version of R ",
+              BIOC_VERSION)
+    if (IS_USER && !IS_END_OF_LIFE)
+        .stop("'BiocUpgrade' not available for this version of BiocInstaller")
 
-    txt <- sprintf("Upgrade all packages to Bioconductor version '%s'? [y/n]: ",
-                   BIOC_LATEST)
+    txt <- sprintf("Upgrade all packages to Bioconductor version %s? [y/n]: ",
+                   UPGRADE_VERSION)
     answer <- .getAnswer(txt, allowed = c("y", "Y", "n", "N"))
     if ("y" == answer) {
-        .update(TRUE)
+        .update(UPGRADE_VERSION)
         biocLite(character(), ask=FALSE)
     }
-}
-
-.isDevel <-
-    function ()
-{
-    pkgVers <- packageVersion("BiocInstaller")
-    ((compareVersion(as.character(pkgVers), BIOCINSTALLER_LATEST) > 0) &&
-     ((pkgVers$minor %% 2L) == 1L))
 }
 
 useDevel <-
     function(devel=TRUE)
 {
-    if (devel && (BIOC_LEADING == BIOC_LATEST))
-        .stop("'devel' requires a more recent R")
-
-    if (devel == .isDevel())
-        .stop("version '%s' already in use",
-              if (devel) BIOC_LEADING else BIOC_LAGGING)
-    .update(devel)
+    if (devel) {
+        if (!IS_USER)
+            .stop("'devel' version already in use")
+        if (IS_END_OF_LIFE)
+            .stop("'devel' version not available")
+        if (!IS_UPGRADEABLE)
+            .stop("'devel' version requires a more recent R")
+        biocVers <- UPGRADE_VERSION
+    } else {
+        if (IS_USER)
+            .stop("'devel' version not in use")
+        if (!IS_DOWNGRADEABLE)
+            .stop("'devel' version cannot be down-graded with this version of R")
+        biocVers <- DOWNGRADE_VERSION
+    }
+    .update(biocVers)
 }
 
 .update <-
-    function(useLeading)
+    function(biocVersion)
 {
-    .dbg("before, version is '%s'", packageVersion("BiocInstaller"))
+    .dbg("before, version is %s", packageVersion("BiocInstaller"))
     bootstrap <-
         function()
     {
@@ -61,7 +57,7 @@ useDevel <-
         BiocInstaller:::.updateFinish()
     }
     biocBootstrapEnv <- new.env()
-    biocBootstrapEnv[["contribUrl"]] <- .getContribUrl(useLeading)
+    biocBootstrapEnv[["contribUrl"]] <- .getContribUrl(biocVersion)
     .stepAside(biocBootstrapEnv, bootstrap)
 }
 
@@ -75,6 +71,6 @@ useDevel <-
     if (!failed)
         .message("'BiocInstaller' changed to version %s", vers)
     else
-        .warning("update failed, using BiocInstaller version '%s'",
+        .warning("update failed, using BiocInstaller version %s",
                  vers, call.=FALSE)
 }

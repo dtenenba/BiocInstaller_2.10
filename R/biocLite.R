@@ -4,12 +4,12 @@
 biocinstallRepos <-
     function(siteRepos=character())
 {
-    ## siteRepos argument is public, but need devel internally
-    .biocinstallRepos(siteRepos=siteRepos, devel=.isDevel())
+    ## siteRepos argument is public, but need biocVersion internally
+    .biocinstallRepos(siteRepos=siteRepos, BIOC_VERSION)
 }
 
 .biocinstallRepos <-
-    function(siteRepos=character(), devel)
+    function(siteRepos=character(), biocVersion)
 {
     old.opts <- options("repos")
     on.exit(options(old.opts))
@@ -47,24 +47,20 @@ biocinstallRepos <-
     repos <- raw.repos[c("BioCsoft", "CRAN", "CRANextra", "BioCann",
                          "BioCexp", "BioCextra")]
 
+    if (!.Platform$OS.type %in% c("windows")) {
+        repos <- repos[!names(repos) %in% "CRANextra"]
+    }
+
     ## This needs to be commented out a few months (3? 4?) after the
     ## next development cycle has started, when we are confident that
     ## no developper is still using an early R devel with a
     ## tools:::.BioC_version_associated_with_R_version still pointing
     ## to the release repository.
-
-    biocVers <- if (devel) BIOC_DEVEL else BIOC_LATEST
-
-    if (!.Platform$OS.type %in% c("windows"))
-    {
-        repos <- repos[!names(repos) %in% "CRANextra"]
-    }
-    
-    if (biocVers == BIOC_DEVEL) {
+    if (biocVersion == UPGRADE_VERSION) {
         ## Add (uncomment) repos here as they become available.
         active_hutch_repos <- "BioCextra"
         active_hutch_repos <- c(active_hutch_repos, "BioCsoft")
-        ##active_hutch_repos <- c(active_hutch_repos, "BioCann")
+        active_hutch_repos <- c(active_hutch_repos, "BioCann")
         active_hutch_repos <- c(active_hutch_repos, "BioCexp")
 
         ## No need to touch below.
@@ -73,7 +69,7 @@ biocinstallRepos <-
                         BioCexp="data/experiment",
                         BioCextra="extra")
         biocMirror <- getOption("BioC_mirror", "http://bioconductor.org")
-        tmp_repos <- paste(biocMirror, "packages", biocVers,
+        tmp_repos <- paste(biocMirror, "packages", biocVersion,
                            bioc_repos[active_hutch_repos], sep="/")
         repos[active_hutch_repos] <- tmp_repos
     }
@@ -116,7 +112,7 @@ biocLiteInstall <-
         .stop("failed to load package 'utils'")
     if (compareVersion(thisRVer, NEXT_R_DEVEL_VERSION) >= 0)
         .message("Temporarily using Bioconductor version %s",
-                 BIOC_DEVEL)
+                 BIOC_VERSION)
 
     repos <- biocinstallRepos(siteRepos)
 
