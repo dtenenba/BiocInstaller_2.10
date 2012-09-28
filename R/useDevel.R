@@ -42,6 +42,9 @@ useDevel <-
     bootstrap <-
         function()
     {
+        if (nchar(Sys.getenv("BIOCINSTALLER_TEST_REPOS")))
+            contribUrl = Sys.getenv("BIOCINSTALLER_TEST_REPOS")
+
         if ("package:BiocInstaller" %in% search())
             detach("package:BiocInstaller", unload=TRUE, force=TRUE)
         ## contribUrl will be in bootstrap's environment
