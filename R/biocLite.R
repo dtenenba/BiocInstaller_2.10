@@ -43,14 +43,14 @@ biocinstallRepos <-
     ## So it's probably better not to rely on the numbers.
     
     setRepositories(ind=1:20) # in case more repos are added
-    rawRepos <- getOption("repos")
+    repos <- getOption("repos")
 
     biocMirror <- getOption("BioC_mirror", "http://bioconductor.org")
     biocPaths <- c(BioCsoft="bioc", BioCann="data/annotation",
                     BioCexp="data/experiment", BioCextra="extra")
     biocRepos <- paste(biocMirror, "packages", biocVersion,
                         biocPaths, sep="/")
-    repos <- rawRepos[names(biocPaths)] <- biocRepos
+    repos[names(biocPaths)] <- biocRepos
 
     keepRepos <- if (.Platform$OS.type %in% "windows") {
         c(names(biocPaths), "CRAN", "CRANextra")
