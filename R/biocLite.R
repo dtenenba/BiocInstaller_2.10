@@ -65,6 +65,7 @@ biocinstallRepos <-
     ## tools:::.BioC_version_associated_with_R_version still pointing
     ## to the release repository.
     if (!IS_USER)
+    {
         ## comment repos here as they become available.
         inactive <- c(
                       ##   "BioCsoft"
