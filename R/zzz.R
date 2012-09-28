@@ -7,7 +7,7 @@ NEXT_R_DEVEL_VERSION <- "2.17.0" # next (not-yet-supported) version of R
 ## Make sure this change is propagated to users, even 
 ## if builds have stopped for a particular version of BioC.
 ## See biocLite.R:.biocinstallRepos to include / exclude package types
-includeMBNI <- TRUE
+includeMBNI <- FALSE
 mbniUrl <- "http://brainarray.mbni.med.umich.edu/bioc"
 
 globalVariables("contribUrl")           # used in 'bootstrap' functions

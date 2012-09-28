@@ -33,7 +33,8 @@
   \code{\link{install.packages}} installs the packages themselves.
 }
 \examples{
-\dontrun{source("http://bioconductor.org/biocLite.R")
+\dontrun{
+source("http://bioconductor.org/biocLite.R")
 biocLite("BiocUpgrade")
 }
 }

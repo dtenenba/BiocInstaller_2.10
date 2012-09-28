@@ -10,10 +10,8 @@
     txt <- sprintf("Upgrade all packages to Bioconductor version %s? [y/n]: ",
                    UPGRADE_VERSION)
     answer <- .getAnswer(txt, allowed = c("y", "Y", "n", "N"))
-    if ("y" == answer) {
-        .update(UPGRADE_VERSION)
-        biocLite(character(), ask=FALSE)
-    }
+    if ("y" == answer)
+        .update(UPGRADE_VERSION, TRUE)
 }
 
 useDevel <-
@@ -34,11 +32,11 @@ useDevel <-
             .stop("'devel' version cannot be down-graded with this version of R")
         biocVers <- DOWNGRADE_VERSION
     }
-    .update(biocVers)
+    .update(biocVers, FALSE)
 }
 
 .update <-
-    function(biocVersion)
+    function(biocVersion, biocLiteAfterUpdate = FALSE)
 {
     .dbg("before, version is %s", packageVersion("BiocInstaller"))
     bootstrap <-
@@ -58,6 +56,7 @@ useDevel <-
     }
     biocBootstrapEnv <- new.env()
     biocBootstrapEnv[["contribUrl"]] <- .getContribUrl(biocVersion)
+    biocBootstrapEnv[["biocLiteAfterUpdate"]] <- biocLiteAfterUpdate
     .stepAside(biocBootstrapEnv, bootstrap)
 }
 
@@ -65,12 +64,15 @@ useDevel <-
     function()
 {
     failed <- exists("failed", "biocBootstrapEnv")
+    biocLiteAfterUpdate <- get("biocLiteAfterUpdate", "biocBootstrapEnv")
     detach("biocBootstrapEnv")
     .dbg("after, version is %s", packageVersion("BiocInstaller"))
     vers <- packageVersion("BiocInstaller")
-    if (!failed)
+    if (!failed) {
         .message("'BiocInstaller' changed to version %s", vers)
-    else
+        if (biocLiteAfterUpdate)
+            biocLite(character(), ask=FALSE)
+    } else
         .warning("update failed, using BiocInstaller version %s",
                  vers, call.=FALSE)
 }

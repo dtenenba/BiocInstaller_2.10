@@ -43,35 +43,40 @@ biocinstallRepos <-
     ## So it's probably better not to rely on the numbers.
     
     setRepositories(ind=1:20) # in case more repos are added
-    raw.repos <- getOption("repos")
-    repos <- raw.repos[c("BioCsoft", "CRAN", "CRANextra", "BioCann",
-                         "BioCexp", "BioCextra")]
+    rawRepos <- getOption("repos")
 
-    if (!.Platform$OS.type %in% c("windows")) {
-        repos <- repos[!names(repos) %in% "CRANextra"]
+    biocMirror <- getOption("BioC_mirror", "http://bioconductor.org")
+    biocPaths <- c(BioCsoft="bioc", BioCann="data/annotation",
+                    BioCexp="data/experiment", BioCextra="extra")
+    biocRepos <- paste(biocMirror, "packages", biocVersion,
+                        biocPaths, sep="/")
+    repos <- rawRepos[names(biocPaths)] <- biocRepos
+
+    keepRepos <- if (.Platform$OS.type %in% "windows") {
+        c(names(biocPaths), "CRAN", "CRANextra")
+    } else {
+        c(names(biocPaths), "CRAN")
     }
+    repos <- repos[keepRepos]
 
     ## This needs to be commented out a few months (3? 4?) after the
     ## next development cycle has started, when we are confident that
     ## no developper is still using an early R devel with a
     ## tools:::.BioC_version_associated_with_R_version still pointing
     ## to the release repository.
-    if (biocVersion == UPGRADE_VERSION) {
-        ## Add (uncomment) repos here as they become available.
-        active_hutch_repos <- "BioCextra"
-        active_hutch_repos <- c(active_hutch_repos, "BioCsoft")
-        active_hutch_repos <- c(active_hutch_repos, "BioCann")
-        active_hutch_repos <- c(active_hutch_repos, "BioCexp")
+    if (!IS_USER)
+        ## comment repos here as they become available.
+        inactive <- c(
+                      ##   "BioCsoft"
+                      ## , "BioCextra"
+                      ## , "BioCann"
+                      ## , "BioCexp"
+                      )
 
         ## No need to touch below.
-        bioc_repos <- c(BioCsoft="bioc",
-                        BioCann="data/annotation",
-                        BioCexp="data/experiment",
-                        BioCextra="extra")
-        biocMirror <- getOption("BioC_mirror", "http://bioconductor.org")
-        tmp_repos <- paste(biocMirror, "packages", biocVersion,
-                           bioc_repos[active_hutch_repos], sep="/")
-        repos[active_hutch_repos] <- tmp_repos
+        tmpRepos <- paste(biocMirror, "packages", DOWNGRADE_VERSION,
+                          biocPaths[inactive], sep="/")
+        repos[inactive] <- tmpRepos
     }
     
     repos <- subset(repos, !is.na(repos))
